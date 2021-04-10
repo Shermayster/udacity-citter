@@ -70,6 +70,7 @@ public class UserController {
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
         Employee employee = employeeService.get(employeeId);
         employee.setDaysAvailable(daysAvailable);
+        employeeService.save(employee);
     }
 
     @GetMapping("/employee/availability")
