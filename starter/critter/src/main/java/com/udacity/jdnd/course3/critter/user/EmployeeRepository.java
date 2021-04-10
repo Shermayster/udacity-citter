@@ -1,9 +1,17 @@
 package com.udacity.jdnd.course3.critter.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
+import java.util.List;
+
 @Repository
 @Transactional
-public interface EmployeeRepository extends JpaRepository<Employee, Long> {}
+public interface EmployeeRepository extends JpaRepository<Employee, Long> {
+	@Query("select e from Employee e where :daysAvailable member of e.daysAvailable")
+	List<Employee> findByDaysAvailable(DayOfWeek daysAvailable);
+}

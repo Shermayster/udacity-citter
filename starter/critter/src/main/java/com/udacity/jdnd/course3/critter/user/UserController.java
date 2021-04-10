@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -49,27 +48,42 @@ public class UserController {
 
     @GetMapping("/customer/pet/{petId}")
     public CustomerDTO getOwnerByPet(@PathVariable long petId){
-        throw new UnsupportedOperationException();
+        return convertCustomerToCustomerDTO(petService.get(petId).getOwner());
+    }
+
+    @GetMapping("/employee/list")
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeService.getAll().stream().map(this::employeeToDTO).collect(Collectors.toList());
     }
 
     @PostMapping("/employee")
     public EmployeeDTO saveEmployee(@RequestBody EmployeeDTO employeeDTO) {
-        return convertEmployeeToDTO(employeeService.save(convertFromEmployeeDTOToEmployee(employeeDTO)));
+        return employeeToDTO(employeeService.save(DTOToEmployee(employeeDTO)));
     }
 
     @PostMapping("/employee/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
-        return convertEmployeeToDTO(employeeService.get(employeeId));
+        return employeeToDTO(employeeService.get(employeeId));
     }
 
     @PutMapping("/employee/{employeeId}")
     public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+        Employee employee = employeeService.get(employeeId);
+        employee.setDaysAvailable(daysAvailable);
     }
 
     @GetMapping("/employee/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+        List<EmployeeDTO> employeeDTOList = new ArrayList<>();
+        DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
+        List<Employee> employeeList = employeeService
+                .getEmployeesBySkillsAndDate(dayOfWeek, employeeDTO.getSkills());
+        if(employeeList != null){
+            for(Employee employee: employeeList) {
+                employeeDTOList.add(employeeToDTO(employee));
+            }
+        }
+        return employeeDTOList;
     }
 
     private Customer convertFromCustomerDTOToCustomer(CustomerDTO customerDTO) {
@@ -98,13 +112,13 @@ public class UserController {
         return customerDTO;
     }
 
-    private Employee convertFromEmployeeDTOToEmployee(EmployeeDTO employeeDTO) {
+    private Employee DTOToEmployee(EmployeeDTO employeeDTO) {
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
         return employee;
     }
 
-    private EmployeeDTO convertEmployeeToDTO(Employee employee) {
+    private EmployeeDTO employeeToDTO(Employee employee) {
         EmployeeDTO employeeDTO = new EmployeeDTO();
         BeanUtils.copyProperties(employee, employeeDTO);
         return employeeDTO;

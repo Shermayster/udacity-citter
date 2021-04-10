@@ -1,16 +1,19 @@
 package com.udacity.jdnd.course3.critter.user;
 
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
+import javax.persistence.*;
 import java.time.DayOfWeek;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 public class Employee extends User {
-	@ElementCollection
-	private Set<EmployeeSkill> skills;
-	@ElementCollection
-	private Set<DayOfWeek> daysAvailable;
+	@ElementCollection(targetClass = EmployeeSkill.class)
+	@Enumerated(EnumType.STRING)
+	private Set<EmployeeSkill> skills = new HashSet<>();
+	@ElementCollection(targetClass =  DayOfWeek.class)
+	@Enumerated(EnumType.STRING)
+	private Set<DayOfWeek> daysAvailable = new HashSet<>();
+
 
 	public Set<DayOfWeek> getDaysAvailable() {
 		return daysAvailable;
